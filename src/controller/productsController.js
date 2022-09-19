@@ -3,15 +3,17 @@ import logger from "../utils/logger.js"
 
 const getAllProductsController = async (req, res) => {
     try {
-        // const { user } = req.session
-        //Este req.user viene de la estrategia definida de passport.local y ya no hace falta recurrir al req.session
-        const { email } = req.user
+        const { email } = req.session
+        const { cartId } = req.session
         //en este controller debo capturar el id de carrito del user para usarlo en el llamado a los metodos de cart.
-        console.log(req.user.username)
-        console.log(req.user._id)
+        // console.log(req.user.username)
+        // console.log(req.user._id)
+        console.log("**********session.userId************",req.session.userId)
+        console.log("----------session.cartId------------",req.session.cartId)
+        
         const products = await productDAO.getAll()
     
-        res.render("plantillaProducts.ejs", { email, products })
+        res.render("plantillaProducts.ejs", { email, products, cartId })
     } catch (error) {
         logger.error(error)
     }

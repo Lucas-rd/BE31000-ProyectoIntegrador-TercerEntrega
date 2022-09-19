@@ -9,7 +9,8 @@
 <body>
     <div>
         <h1>Bienvenido <%= email %></h1>
-            <button onclick="location.href='/api/logout'">Deslogear</button>
+            <button onclick="location.href='/api/logout'">Sing off</button>
+            <button onclick="location.href='/api/carts/usercart'">Go to cart!</button>
     </div>
     <div>
         <h1>Formulario de ingreso de nuevo producto</h1>
@@ -37,7 +38,7 @@
     <h1>Stock actual</h1>
     <table>
         <tr>
-            <th>Title</th><th>Price</th><th>Description</th><th>Image</th>
+            <th>Title</th><th>Price</th><th>Description</th><th>Image</th><th>Stock</th><th>addCart</th>
         </tr>
         <% products.forEach(producto => { %>
             <tr>
@@ -46,6 +47,7 @@
                 <td><%= producto.description %> </td>
                 <td><img src="<%= producto.thumbnail %>" alt=""> </td>
                 <td><%= producto.stock %> </td>
+                <td><form action="/api/carts/<%=cartId%>/product_id/<%=producto._id%>" method="POST"><input type="submit" value="add to cart"></form></td>
             </tr>
         <% }) %>  
     </table>

@@ -3,8 +3,8 @@ import { Cart } from "../models/cartModel.js"
 const cartDAO = {
 
     async getById(id) {
-        const doc = await Cart.find({ _id: id }, {products: 1, _id:0})
-        return doc[0].products
+        const doc = await Cart.find({ _id: id }, { products: 1, user:1, _id:0 })
+        return doc[0]
     },
 
     async getAll(){
@@ -12,8 +12,13 @@ const cartDAO = {
         return doc
     },
 
-    async createDocument(document){
-        const doc = await Cart.insertMany(document)
+    async getByUserId(userId){
+        const doc = await Cart.findOne({ user: userId })
+        return doc
+    },
+
+    async createDocument(userId){
+        const doc = await Cart.insertMany({user: userId})
         return doc[0]._id
     },
 

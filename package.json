@@ -5,7 +5,7 @@
   "main": "server.js",
   "type": "module",
   "scripts": {
-    "start": "node ./src/server.js -p 8080",
+    "start": "nodemon ./src/server.js -p 8080",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {

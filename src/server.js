@@ -88,7 +88,7 @@ if(isCluster && cluster.isPrimary) {
       cookie: {
         httpOnly : false,
         secure : false,
-        maxAge: 120000,
+        maxAge: 600000,
       },
     })
   )
@@ -124,9 +124,10 @@ if(isCluster && cluster.isPrimary) {
                 lastName: req.body.lastName,
                 email: req.body.email
             }
-            console.log("Nuevo usuario creado: ",newUser)
-  
             const createdUser = await User.create(newUser)
+            
+            req.body.userId = createdUser._id
+            console.log("Nuevo usuario creado: ",newUser)
             done(null, createdUser)
   
         } catch (error) {

@@ -3,7 +3,7 @@ import { Product } from "../models/productsModel.js"
 const productDAO = {
 
     async getById(id) {
-        const doc = await Product.find( { _id: id } )
+        const doc = await Product.findOne( { _id: id } )
         return doc
     },
 

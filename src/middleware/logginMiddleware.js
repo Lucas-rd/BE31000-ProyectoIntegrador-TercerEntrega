@@ -3,7 +3,7 @@ const logginMiddleware = (req, res, next) => {
         console.log("Un usuario trato de navegar sin logearse")
         res.redirect("/api/login")
     } else {
-        console.log(`Ingreso el usuario ${req.session.user}`)
+        console.log(`Usuario logeado: ${req.session.user}`)
         return next()
     }
 }

@@ -1,3 +1,5 @@
+import { cartDAO } from '../DAO/cartDAO.js'
+import { userDAO } from '../DAO/userDAO.js'
 
 const loginController = async (req, res) => {
     if(req.isAuthenticated()){
@@ -12,7 +14,15 @@ const loginController = async (req, res) => {
 
 const loginPostController = async (req, res) => {
     req.session.user = req.body.username
-    
+
+    //obtenemos los datos del usuario que logro logearse y los guardamos en el req.session
+    const loggedUser = await userDAO.findOne(req.session.user)
+    req.session.email = loggedUser.email
+    req.session.userId = loggedUser._id
+
+    //obtenemos los datos del carrito del user que logro logearse y guardamos su id en el req.session
+    const loggedUserCart = await cartDAO.getByUserId(req.session.userId)
+    req.session.cartId = loggedUserCart._id
 
     res.redirect("/api/products/all")
 }
