@@ -9,7 +9,7 @@ import { logginMiddleware } from "../middleware/logginMiddleware.js";
 import { infoController } from '../controller/infoController.js';
 import { randomsController } from '../controller/randomsController.js';
 import logger from '../utils/logger.js';
-
+import { upload } from '../middleware/multerMiddleware.js';
 
 const router = Router()
 
@@ -22,7 +22,7 @@ router.get("/hola", (req, res) => {
 })
 //Rutas de register
 router.get('/register', registerController)
-router.post('/register', passport.authenticate("register", { failureRedirect: "/api/registerError" }), registerPostController)
+router.post('/register', upload.single("userAvatar"), passport.authenticate("register", { failureRedirect: "/api/registerError" }), registerPostController)
 router.get('/registerError', registerErrorController)
 
 //Rutas Login-Loguot

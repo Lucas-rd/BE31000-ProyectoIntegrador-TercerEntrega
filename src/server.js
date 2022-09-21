@@ -61,7 +61,8 @@ if(isCluster && cluster.isPrimary) {
   
   //confiuracion para poder usar el __dirname y el path en module
   const __dirname = dirname(fileURLToPath(import.meta.url))
-  app.use(express.static(path.join(__dirname,'./views')));
+  app.use(express.static(path.join(__dirname,'./views')))
+  app.use(express.static("upload"))
   
   //config para poder usat json
   app.use(express.json())
@@ -122,11 +123,14 @@ if(isCluster && cluster.isPrimary) {
                 password: hashPassword(password),
                 firstName: req.body.firstName,
                 lastName: req.body.lastName,
-                email: req.body.email
+                email: req.body.email,
+                avatar: `http://localhost:${PORT}/${req.file.filename}`
             }
             const createdUser = await User.create(newUser)
             
             req.body.userId = createdUser._id
+            req.body.avatar = createdUser.avatar
+            
             console.log("Nuevo usuario creado: ",newUser)
             done(null, createdUser)
   

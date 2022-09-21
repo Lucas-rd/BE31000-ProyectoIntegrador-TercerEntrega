@@ -11,8 +11,9 @@ const registerPostController = async(req, res) =>{
         req.session.user = req.body.username
         req.session.userId = req.body.userId
         req.session.email = req.user.email
-        
-        //creamos un carrito para el user
+        req.session.avatar = req.body.avatar
+
+        //creamos un carrito para el user 
         const newCartId = await cartDAO.createDocument(req.session.userId)
         req.session.cartId = newCartId
 

@@ -5,6 +5,7 @@ const getAllProductsController = async (req, res) => {
     try {
         const { email } = req.session
         const { cartId } = req.session
+        const { avatar } = req.session
         //en este controller debo capturar el id de carrito del user para usarlo en el llamado a los metodos de cart.
         // console.log(req.user.username)
         // console.log(req.user._id)
@@ -13,7 +14,7 @@ const getAllProductsController = async (req, res) => {
         
         const products = await productDAO.getAll()
     
-        res.render("plantillaProducts.ejs", { email, products, cartId })
+        res.render("plantillaProducts.ejs", { email, products, cartId, avatar })
     } catch (error) {
         logger.error(error)
     }
