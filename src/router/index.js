@@ -2,7 +2,7 @@ import passport from 'passport';
 import { Router } from "express";
 import { productsTest } from "../controller/testController.js";
 import { getAllProductsController,getOneProductController, postNewProduct } from "../controller/productsController.js";
-import { cartControllerGet, cartControllerPost, cartControllerProductsPost, cartControllerDelete, cartControllerProductDelete, cartControllerInsertProduct, cartControllerGetUserCart } from "../controller/cartController.js";
+import { cartControllerGet, cartControllerPost, cartControllerProductsPost, cartControllerDelete, cartControllerProductDelete, cartControllerInsertProduct, cartControllerGetUserCart, cartControllerPurchase } from "../controller/cartController.js";
 import { loginController, loginPostController, logOutController, loginErrorController  } from "../controller/loginController.js";
 import { registerController, registerPostController, registerErrorController } from "../controller/registerController.js";
 import { logginMiddleware } from "../middleware/logginMiddleware.js";
@@ -41,6 +41,7 @@ router.get('/carts/:id/products', cartControllerGet)
 
 router.post('/carts/:cart_id/product_id/:product_id', cartControllerInsertProduct )
 router.get('/carts/usercart', cartControllerGetUserCart)
+router.post('/carts/purchase', cartControllerPurchase)
 
 router.post('/carts', cartControllerPost)
 router.post('/carts/:id/products', cartControllerProductsPost)

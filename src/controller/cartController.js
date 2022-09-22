@@ -1,5 +1,7 @@
 import { cartDAO } from "../DAO/cartDAO.js";
 import { productDAO } from "../DAO/productDAO.js";
+import { mailOptions, transporter } from "../middleware/nodemailer.js";
+import { client, option } from "../middleware/twilioWatsapp.js";
 
 const cartControllerGet = async (req, res) => {
     try {
@@ -17,9 +19,7 @@ const cartControllerInsertProduct = async (req, res) => {
         //obtenemos datos necesarios del req.session
         const cartId = req.params.cart_id
         const productId = req.params.product_id
-        // const productTitle = req.params.product_title
-        // const productPrice = req.params.product_price
-        // const productThumbnail = req.params.product_thumbnail
+
         
         //obtenemos el carrito que debemos updatear
         const cartToUpdate = await cartDAO.getById(cartId)
@@ -33,9 +33,6 @@ const cartControllerInsertProduct = async (req, res) => {
         } else {
             cartToUpdate.products.push({
                 productId: productId,
-                // title: productTitle,
-                // price: productPrice,
-                // thumbnail: productThumbnail,
                 quantity: 1
             })
         }
@@ -62,16 +59,77 @@ const cartControllerGetUserCart = async (req, res) => {
                     title : productData.title,
                     thumbnail : productData.thumbnail,
                     price : productData.price,
-                    quantity : product.quantity
+                    quantity : product.quantity,
+                    total : productData.price * product.quantity
                 }
             })
 
-            const productsComplete = await Promise.all(ProductsPromises)
+            const productsInCart = await Promise.all(ProductsPromises)
 
-        res.render("plantillaCart.ejs", { productsComplete })
+            req.session.productsInCart = productsInCart
+            
+        res.render("plantillaCart.ejs", { productsInCart })
     } catch (error) {
         console.log(error)
+    }
+}
 
+const cartControllerPurchase = async (req, res) => {
+    try {
+        //enviamos mail
+        mailOptions.subject = `Nuevo pedido de ${req.session.user} (email: ${req.session.email})`
+        mailOptions.html = `<h1>Nuevo pedido de ${req.session.user} (email: ${req.session.email})</h1>
+        <h2>Prodcutos comprados:</h2>
+        `
+
+        req.session.productsInCart.forEach( product => {
+            mailOptions.html +=(`
+            <br>
+            <ul>title: ${product.title}</ul>
+            <ul>productId: ${product.productId}</ul>
+            <ul>price: ${product.price}</ul>
+            <ul>quantity: ${product.quantity}</ul>
+            <ul>total: ${product.total}</ul>
+            <br>
+            `)
+        })
+        
+        await transporter.sendMail(mailOptions)
+        
+
+        //enviamos whatsapp
+        option.body = `
+        Nuevo pedido de ${req.session.user} (email: ${req.session.email})
+        Prodcutos comprados:
+        `
+        req.session.productsInCart.forEach( product => {
+            option.body +=(`
+                title: ${product.title}
+                productId: ${product.productId}
+                price: ${product.price}
+                quantity: ${product.quantity}
+                total: ${product.total}
+            `)
+        })
+
+        console.log("++++++++++++OPTION+++++++++++++++++++", option)
+        const message = await client.messages.create(option)
+        console.log("------------------MESSAGE-------------------", message)
+        
+        req.session.productsInCart = []
+        const cartId = req.session.cartId
+        //obtenemos el carrito que debemos vaciar
+        const cartToUpdate = await cartDAO.getById(cartId)
+
+        //Le asginamos un array vacio al array de productos del carrito a vaciar
+        cartToUpdate.products = req.session.productsInCart
+
+        //finalmente lo cargamos en la base
+        await cartDAO.updateDocument(cartId, cartToUpdate)
+
+        res.redirect("/api/login")
+    } catch (error) {
+        console.log(error)
     }
 }
 
@@ -83,7 +141,6 @@ const cartControllerPost = async (req, res) => {
     } catch (error) {
         console.log(error)
     }
-
 }
 
 const cartControllerProductsPost = async (req, res) => {
@@ -125,4 +182,4 @@ const cartControllerProductDelete = async (req, res) => {
     }
 }
 
-export { cartControllerGet, cartControllerPost, cartControllerProductsPost, cartControllerDelete, cartControllerProductDelete, cartControllerInsertProduct, cartControllerGetUserCart }
+export { cartControllerGet, cartControllerPost, cartControllerProductsPost, cartControllerDelete, cartControllerProductDelete, cartControllerInsertProduct, cartControllerGetUserCart, cartControllerPurchase }

@@ -124,12 +124,14 @@ if(isCluster && cluster.isPrimary) {
                 firstName: req.body.firstName,
                 lastName: req.body.lastName,
                 email: req.body.email,
+                phoneNumber: req.body.phoneNumber ,
                 avatar: `http://localhost:${PORT}/${req.file.filename}`
             }
             const createdUser = await User.create(newUser)
             
             req.body.userId = createdUser._id
             req.body.avatar = createdUser.avatar
+            req.body.phoneNumber = createdUser.phoneNumber
             
             console.log("Nuevo usuario creado: ",newUser)
             done(null, createdUser)
