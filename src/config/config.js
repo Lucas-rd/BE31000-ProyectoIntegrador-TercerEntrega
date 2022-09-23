@@ -9,6 +9,7 @@ export const enviroment = {
     ADMIN_MAIL: process.env.ADMIN_MAIL || '',
     ACCOUNTSID: process.env.ACCOUNTSID || '',
     AUTHTOKEN_TWILIO: process.env.AUTHTOKEN_TWILIO || '',
-    ADMIN_PHONE_NUMBER: process.env.ADMIN_PHONE_NUMBER || '',
+    ADMIN_WHATSAPP_NUMBER: process.env.ADMIN_WHATSAPP_NUMBER || '',
+    ADMIN_SMS_NUMBER: process.env.ADMIN_SMS_NUMBER || '',
     TWILIO_WHATSAPP_SANDBOX: process.env.TWILIO_WHATSAPP_SANDBOX || ''
 }

@@ -1,7 +1,8 @@
 import { cartDAO } from "../DAO/cartDAO.js";
 import { productDAO } from "../DAO/productDAO.js";
 import { mailOptions, transporter } from "../middleware/nodemailer.js";
-import { client, option } from "../middleware/twilioWatsapp.js";
+import { smsClient, smsOptions } from "../middleware/twilioSms.js";
+import { whatsappClient, whatsappOptions } from "../middleware/twilioWatsapp.js";
 
 const cartControllerGet = async (req, res) => {
     try {
@@ -76,7 +77,7 @@ const cartControllerGetUserCart = async (req, res) => {
 
 const cartControllerPurchase = async (req, res) => {
     try {
-        //enviamos mail
+        //enviamos mail al admin
         mailOptions.subject = `Nuevo pedido de ${req.session.user} (email: ${req.session.email})`
         mailOptions.html = `<h1>Nuevo pedido de ${req.session.user} (email: ${req.session.email})</h1>
         <h2>Prodcutos comprados:</h2>
@@ -97,13 +98,13 @@ const cartControllerPurchase = async (req, res) => {
         await transporter.sendMail(mailOptions)
         
 
-        //enviamos whatsapp
-        option.body = `
+        //enviamos whatsapp al admin
+        whatsappOptions.body = `
         Nuevo pedido de ${req.session.user} (email: ${req.session.email})
         Prodcutos comprados:
         `
         req.session.productsInCart.forEach( product => {
-            option.body +=(`
+            whatsappOptions.body +=(`
                 title: ${product.title}
                 productId: ${product.productId}
                 price: ${product.price}
@@ -111,22 +112,22 @@ const cartControllerPurchase = async (req, res) => {
                 total: ${product.total}
             `)
         })
-
-        console.log("++++++++++++OPTION+++++++++++++++++++", option)
-        const message = await client.messages.create(option)
-        console.log("------------------MESSAGE-------------------", message)
+        await whatsappClient.messages.create(whatsappOptions)
         
+        //enviamos SMS al user
+        smsOptions.body += `${req.session.user}, tu pedido se esta procesando :)`
+        smsOptions.to += `${req.session.phoneNumber}`
+
+        await smsClient.messages.create(smsOptions)
+
+        //proceso de vaciado de carrito
         req.session.productsInCart = []
         const cartId = req.session.cartId
-        //obtenemos el carrito que debemos vaciar
         const cartToUpdate = await cartDAO.getById(cartId)
-
-        //Le asginamos un array vacio al array de productos del carrito a vaciar
         cartToUpdate.products = req.session.productsInCart
-
-        //finalmente lo cargamos en la base
         await cartDAO.updateDocument(cartId, cartToUpdate)
 
+        //redireccion al home del user
         res.redirect("/api/login")
     } catch (error) {
         console.log(error)
